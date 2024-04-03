@@ -263,7 +263,7 @@ def eval_genome(preygenomes, config):
             preyMovement(preyArray[i], prey_output)
             drawBoundary(preyArray[i], win)
             isEat(preyArray[i], pelletArray)
-            isRiver(preyArray[i], river)
+            # isRiver(preyArray[i], river)
             energyBar = EnergyBar(preyArray[i].x-25, preyArray[i].y-20, preyArray[i].energy, (max(0,preyArray[i].energy), 137, 100))
             energyBar.draw(win)
             if isDead(preyArray[i]) == 1:
