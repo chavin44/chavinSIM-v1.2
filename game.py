@@ -168,6 +168,9 @@ class EnergyBar:
         red = int(255 * (1 - self.energy / 100))
         green = int(128 * (self.energy / 100))
         blue = 0
+        red = max(0,red)
+        green = max(0, green)
+        blue = max(0, blue)
         color = (red, green, blue)
         pygame.draw.rect(win, color, adjusted_rect, border_radius=4)
 
@@ -233,7 +236,7 @@ def eval_genome(preygenomes, config):
     river = River(random.randint(100, width - 100), random.randint(100, height - 100))
     pelletArray = []
     for i in range(50):
-        pellets = Pellets(random.randint(100, width - 100), random.randint(100, height - 100))
+        pellets = Pellets(random.randint(50, width - 50), random.randint(50, height - 50))
         pelletArray.append(pellets)
     preyArray = []
     preyNets = []
