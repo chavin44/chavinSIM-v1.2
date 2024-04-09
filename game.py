@@ -11,7 +11,6 @@ height = root.winfo_screenheight()
 
 width = root.winfo_screenwidth()
 print(str(height) + " " + str(width))
-# Constants
 # WIDTH, HEIGHT = 1850, 990
 TITLE = "Evolution sim"
 # pygame initialization
@@ -20,8 +19,6 @@ win = pygame.display.set_mode((width - 100, height - 100))
 pygame.display.set_caption(TITLE)
 clock = pygame.time.Clock()
 
-
-# Player Class
 class Predator:
     def __init__(self, x, y, energy):
         self.energy = energy
@@ -38,7 +35,7 @@ class Predator:
         self.speed = 4
 
     def draw(self, win):
-        pygame.draw.rect(win, self.color, self.rect)
+        pygame.draw.rect(win, self.color, self.rect, border_radius=2)
 
     def addEnergy(self):
         self.energy += 0.499999999
@@ -79,7 +76,10 @@ class Prey:
         pygame.draw.rect(win, self.color, self.rect,border_radius=2)
 
     def addEnergy(self):
-        self.energy += 0.499999999
+        self.energy += 5.499999999
+
+    def removeEnergy(self):
+        self.energy-= .0099
 
     def update(self):
         self.velX = 0
@@ -124,8 +124,6 @@ def preyMovement(prey, preyInputNum):
         prey.up_pressed = False
         prey.down_pressed = False
     prey.update()
-
-
 def endgame():
     exit()
 
@@ -171,6 +169,19 @@ class EnergyBar:
         red = max(0,red)
         green = max(0, green)
         blue = max(0, blue)
+        if (red>255):
+            red = 255
+        if (blue>255):
+            blue = 255
+        if (green>255):
+            green = 255
+        if (green<0):
+            green = 0
+        if (red<0):
+            red = 0
+        if (blue<0):
+            blue = 0
+
         color = (red, green, blue)
         pygame.draw.rect(win, color, adjusted_rect, border_radius=4)
 
@@ -204,8 +215,8 @@ def isDead(prey):
     else:
         return 2
 def getPreyInput(prey, pelletArray):
-    closest_X = 0
-    closest_Y = 0
+    closest_X = None
+    closest_Y = None
     prey_X = prey.x
     prey_Y = prey.y
     closest_Distance = 1000000
@@ -235,8 +246,8 @@ class PreyID:
 def eval_genome(preygenomes, config):
     river = River(random.randint(100, width - 100), random.randint(100, height - 100))
     pelletArray = []
-    for i in range(50):
-        pellets = Pellets(random.randint(50, width - 50), random.randint(50, height - 50))
+    for i in range(10):
+        pellets = Pellets(random.randint(150, width - 150), random.randint(150, height - 150))
         pelletArray.append(pellets)
     preyArray = []
     preyNets = []
@@ -246,6 +257,7 @@ def eval_genome(preygenomes, config):
         net = neat.nn.FeedForwardNetwork.create(genome, config)
         preyNets.append(net)
         preyArray.append(Prey((width / 2) + 100, (height / 2) + 100, 100))
+        predatorArray.append(Predator((width / 2) + 100, (height / 2) + 100, 100))
         preyGe.append(genome)
     run = True
     while run and len(preyArray) > 0:
@@ -261,20 +273,40 @@ def eval_genome(preygenomes, config):
         while i < x:
             preyArray[i].draw(win)
             preyArray[i].update()
+            predatorArray[i].draw(win)
+            predatorArray[i].update()
             preyGe[i].fitness += 0.1
-            prey_output = preyNets[i].activate(getPreyInput(preyArray[i], pelletArray))
-            preyMovement(preyArray[i], prey_output)
-            drawBoundary(preyArray[i], win)
-            isEat(preyArray[i], pelletArray)
+            if (len(pelletArray) > 0):
+                prey_output = preyNets[i].activate(getPreyInput(preyArray[i], pelletArray))
+                #break
+                # for i in range(10):
+                #     pellets = Pellets(random.randint(150, width - 150), random.randint(150, height - 150))
+                #     pelletArray.append(pellets)
+            if (len(preyArray) > 0):
+                try:
+                    preyMovement(preyArray[i], prey_output)
+                    drawBoundary(preyArray[i], win)
+                    isEat(preyArray[i], pelletArray)
+                    energyBar = EnergyBar(preyArray[i].x - 25, preyArray[i].y - 20, preyArray[i].energy,
+                                          (max(0, preyArray[i].energy), 137, 100))
+                    energyBar.draw(win)
+                    # preyId = PreyID(preyArray[i], i)
+                    # preyId.draw(win)
+
+                    if isDead(preyArray[i]) == 1:
+                        preyNets.pop(i)
+                        preyGe.pop(i)
+                        preyArray.pop(i)
+                        x -= 1
+                    i += 1
+                except:
+                    print("some error")
+            else:
+                break
+            if (len(pelletArray) == 0):
+                for pa in preyArray:
+                    pa.removeEnergy()
             # isRiver(preyArray[i], river)
-            energyBar = EnergyBar(preyArray[i].x-25, preyArray[i].y-20, preyArray[i].energy, (max(0,preyArray[i].energy), 137, 100))
-            energyBar.draw(win)
-            if isDead(preyArray[i]) == 1:
-                preyNets.pop(i)
-                preyGe.pop(i)
-                preyArray.pop(i)
-                x -= 1
-            i += 1
         drawPellets(win, pelletArray)
         pygame.display.flip()
         clock.tick(120)
