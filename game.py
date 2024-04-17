@@ -61,7 +61,7 @@ class Prey:
     def __init__(self, x, y, energy):
         self.x = int(x)
         self.y = int(y)
-        self.rect = pygame.Rect(self.x, self.y, 32, 32)
+        self.rect = pygame.Rect(self.x, self.y, 12, 12)
         self.color = (0, 255, 0)
         self.energy = energy
         self.velX = 0
@@ -79,7 +79,11 @@ class Prey:
         self.energy += 5.499999999
 
     def removeEnergy(self):
-        self.energy-= .0099
+        if (self.energy >= 100):
+            self.speed = self.speed - (self.energy/100)
+            self.energy-=.0999
+        else:
+            self.energy-= .0099
 
     def update(self):
         self.velX = 0
@@ -95,7 +99,7 @@ class Prey:
         self.x += self.velX
         self.y += self.velY
         self.energy -= 0.0333333333
-        self.rect = pygame.Rect(int(self.x), int(self.y), 32, 32)
+        self.rect = pygame.Rect(int(self.x), int(self.y), 12, 12)
 
 predatorArray = []
 preyArray = []
@@ -273,8 +277,8 @@ def eval_genome(preygenomes, config):
         while i < x:
             preyArray[i].draw(win)
             preyArray[i].update()
-            predatorArray[i].draw(win)
-            predatorArray[i].update()
+            #predatorArray[i].draw(win)
+            #predatorArray[i].update()
             preyGe[i].fitness += 0.1
             if (len(pelletArray) > 0):
                 prey_output = preyNets[i].activate(getPreyInput(preyArray[i], pelletArray))
