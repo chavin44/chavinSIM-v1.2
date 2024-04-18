@@ -1,8 +1,8 @@
 # chavinSIM-v1.0
 epic project
 
-DEMO v1.0:
+DEMO v1.2:
 Coming soon..
 
-Coding PART 1:
+Coding the original idea (v1.0):
 https://www.youtube.com/watch?v=mQWDRJ6bhYs
