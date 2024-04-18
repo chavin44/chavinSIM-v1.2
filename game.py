@@ -152,6 +152,7 @@ def isEat(prey, pelletArray):
         if (prey.rect.colliderect(pa)):
             prey.addEnergy()
             pelletArray.remove(pa)
+            #pelletArray.append(Pellets(random.randint(150, width - 150), random.randint(150, height - 150)))
     # return pelletArray
     # prey.isTouchingBorder()
 class EnergyBar:
